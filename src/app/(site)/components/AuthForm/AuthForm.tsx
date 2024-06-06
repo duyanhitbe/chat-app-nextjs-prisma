@@ -30,7 +30,7 @@ const AuthForm = () => {
 
 	useEffect(() => {
 		if (session.status === "authenticated") {
-			router.push("/dashboard");
+			router.push("/users");
 		}
 	}, [router, session?.status]);
 
@@ -90,7 +90,7 @@ const AuthForm = () => {
 	};
 
 	return (
-		<div className="sm:mx-auto sm:w-full sm:max-w-lg">
+		<div className="sm:mx-auto sm:w-full sm:max-w-lg mx-5">
 			<div className="bg-white px-10 py-8 shadow rounded-lg">
 				<form onSubmit={handleSubmit(onSubmit)}>
 					{
