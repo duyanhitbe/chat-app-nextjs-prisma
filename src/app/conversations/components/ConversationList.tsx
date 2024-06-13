@@ -1,21 +1,59 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import useConversation from "@/app/hooks/useConversation";
-import { useRouter } from "next/navigation";
 import { MdOutlineGroupAdd } from "react-icons/md";
 import ConversationBox from "@/app/conversations/components/ConversationBox";
+import { pusherClient } from "@/app/lib/pusher";
+import { useSession } from "next-auth/react";
 
 type ConversationListProps = {
 	conversations: FullConversation[];
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
-															   conversations
+															   conversations: initConversations
 														   }) => {
 	const { conversationId, isOpen } = useConversation();
-	const router = useRouter();
+	const [conversations, setConversations] = useState(initConversations);
+	const session = useSession();
+
+	const pusherKey = useMemo(() => session.data?.user?.email, [session.data?.user?.email]);
+
+	useEffect(() => {
+		if (!pusherKey) return;
+
+		const newConversationHandler = (conversation: FullConversation) => {
+			setConversations((current) => {
+				if (current.find((item => item.id === conversation.id))) {
+					return current;
+				}
+
+				return [conversation, ...current];
+			});
+		};
+
+		const updateConversationHandler = (conversation: FullConversation) => {
+			setConversations((current) => {
+				return current.map(item => {
+					console.log(conversation.messages);
+					if (item.id === conversation.id) return { ...item, messages: conversation.messages };
+					return item;
+				});
+			});
+		};
+
+		pusherClient.subscribe(pusherKey);
+		pusherClient.bind("conversation:new", newConversationHandler);
+		pusherClient.bind("conversation:update", updateConversationHandler);
+
+		return () => {
+			pusherClient.unsubscribe(pusherKey);
+			pusherClient.unbind("conversation:new", newConversationHandler);
+			pusherClient.unbind("conversation:update", updateConversationHandler);
+		};
+	}, [pusherKey]);
 
 	return (
 		<aside className={clsx(`

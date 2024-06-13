@@ -1,12 +1,10 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { useSession } from "next-auth/react";
 import clsx from "clsx";
 import Avatar from "@/app/components/Avatar";
 import { format } from "date-fns";
 import Image from "next/image";
-import axios from "axios";
-import useConversation from "@/app/hooks/useConversation";
 import { User } from "@prisma/client";
 
 type MessageBoxProps = {
@@ -19,7 +17,6 @@ const MessageBox: React.FC<MessageBoxProps> = ({
 												   isLast
 											   }) => {
 	const session = useSession();
-	const { conversationId } = useConversation();
 
 	const isOwner = session?.data?.user?.email === message.sender.email;
 	const seenAvatar = (message.seen || [])
@@ -40,10 +37,6 @@ const MessageBox: React.FC<MessageBoxProps> = ({
 		isOwner ? "bg-sky-500 text-white" : "bg-gray-100",
 		message.image ? "rounded-md p-0" : "rounded-full px-3 py-2"
 	);
-
-	useEffect(() => {
-		axios.post(`/api/conversations/${conversationId}/seen`);
-	}, [conversationId]);
 
 
 	return (
