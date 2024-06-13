@@ -5,7 +5,7 @@ import Button from "@/app/components/Button";
 import SignInForm from "@/app/(site)/components/AuthForm/SignInForm";
 import SignUpForm from "@/app/(site)/components/AuthForm/SignUporm";
 import SocialButton from "@/app/(site)/components/AuthForm/SocialButton";
-import { BsGoogle, BsFacebook, BsGithub, BsLinkedin } from "react-icons/bs";
+import { BsFacebook, BsGithub, BsGoogle, BsLinkedin } from "react-icons/bs";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { signIn, useSession } from "next-auth/react";
@@ -77,7 +77,6 @@ const AuthForm = () => {
 
 		signIn(action, { redirect: false })
 			.then((callback) => {
-				console.log(callback);
 				if (callback?.error) {
 					toast.error(callback.error);
 				}
@@ -112,7 +111,7 @@ const AuthForm = () => {
 								<div className="border-t border-gray-300 w-full"></div>
 							</div>
 							<div className="relative flex justify-center items-center">
-								<span className="bg-white px-2 text-gray-500 font-bold">Or continue with</span>
+								<span className="bg-white px-2 text-gray-500 text-sm">Or continue with</span>
 							</div>
 						</div>
 					</div>

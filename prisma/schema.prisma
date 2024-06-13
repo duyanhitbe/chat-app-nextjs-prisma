@@ -54,8 +54,16 @@ model User {
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  accounts      Account[]
-  sessions      Session[]
+
+  accounts Account[]
+  sessions Session[]
+  messages Message[]
+
+  conversationId String[]       @db.ObjectId()
+  conversation   Conversation[] @relation(fields: [conversationId], references: [id])
+
+  seenMessageIds String[]  @db.ObjectId()
+  seenMessages   Message[] @relation(name: "Seen", fields: [seenMessageIds], references: [id])
 }
 
 model VerificationRequest {
@@ -67,4 +75,34 @@ model VerificationRequest {
   updatedAt  DateTime @updatedAt
 
   @@unique([identifier, token])
+}
+
+model Conversation {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId()
+  createdAt     DateTime @default(now())
+  lastMessageAt DateTime @default(now())
+  name          String?
+  isGroup       Boolean?
+
+  userIds String[] @db.ObjectId
+  users   User[]   @relation(fields: [userIds], references: [id])
+
+  messageIds String[]  @db.ObjectId
+  messages   Message[]
+}
+
+model Message {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId()
+  createdAt DateTime @default(now())
+  body      String
+  image     String?
+
+  conversationId String       @db.ObjectId
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  seenIds String[] @db.ObjectId
+  seen    User[]   @relation(name: "Seen", fields: [seenIds], references: [id])
+
+  senderId String @db.ObjectId
+  sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }
